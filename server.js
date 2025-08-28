@@ -73,6 +73,24 @@ app.put('/products/:id', async (req, res) => {
   }
 });
 
+// DELETE /products/:id: Eliminar un producto por su ID
+
+app.delete('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const { rows } = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+    
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    
+    res.json({ message: 'Producto eliminado exitosamente' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 
 // Iniciar el servidor
