@@ -36,6 +36,22 @@ app.get('/products', async (req, res) => {
   }
   });
 
+// GET /products/:id: Obtener un producto por su ID
+
+app.get('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await db.query('SELECT * FROM products WHERE id = $1', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 // Iniciar el servidor
 app.listen(port, () => {
