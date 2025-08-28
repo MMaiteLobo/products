@@ -51,6 +51,28 @@ app.get('/products/:id', async (req, res) => {
   }
 });
 
+// PUT /products/:id: Actualizar un producto por su ID
+
+app.put('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, description, price, type, active } = req.body;
+  
+  try {
+    const { rows } = await db.query(
+      'UPDATE products SET name = $1, description = $2, price = $3, type = $4, active = $5, updated_at = NOW() WHERE id = $6 RETURNING *',
+      [name, description, price, type, active, id]
+    );
+
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 
 
 // Iniciar el servidor
