@@ -42,7 +42,7 @@ app.get('/products/:id', async (req, res) => {
   const { id } = req.params;
   try {
     const { rows } = await db.query('SELECT * FROM products WHERE id = $1', [id]);
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
     res.json(rows[0]);
@@ -63,7 +63,7 @@ app.put('/products/:id', async (req, res) => {
       [name, description, price, type, active, id]
     );
 
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
 
@@ -81,7 +81,7 @@ app.delete('/products/:id', async (req, res) => {
   try {
     const { rows } = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
     
-    if (rows.length === 0) {
+    if (!rows.length) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
     
