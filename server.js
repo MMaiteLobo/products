@@ -36,6 +36,62 @@ app.get('/products', async (req, res) => {
   }
   });
 
+// GET /products/:id: Obtener un producto por su ID
+
+app.get('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await db.query('SELECT * FROM products WHERE id = $1', [id]);
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// PUT /products/:id: Actualizar un producto por su ID
+
+app.put('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, description, price, type, active } = req.body;
+  
+  try {
+    const { rows } = await db.query(
+      'UPDATE products SET name = $1, description = $2, price = $3, type = $4, active = $5, updated_at = NOW() WHERE id = $6 RETURNING *',
+      [name, description, price, type, active, id]
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// DELETE /products/:id: Eliminar un producto por su ID
+
+app.delete('/products/:id', async (req, res) => {
+  const { id } = req.params;
+  
+  try {
+    const { rows } = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
+    
+    if (!rows.length) {
+      return res.status(404).json({ message: 'Producto no encontrado' });
+    }
+    
+    res.sendStatus(204);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 // Iniciar el servidor
 app.listen(port, () => {
