@@ -1,13 +1,14 @@
 // server.js
 const express = require('express');
-const bodyParser = require('body-parser');
 const db = require('./db');
 
+require('dotenv').config();
+
 const app = express();
-const port = 3000;
+const port = process.env.HTTP_PORT;
 
 // Middleware para procesar los cuerpos de las peticiones en formato JSON
-app.use(bodyParser.json());
+app.use(express.json());
 
 // --- Rutas ---
 
