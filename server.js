@@ -1,8 +1,9 @@
 // server.js
 const express = require('express');
-const db = require('./db');
 
 require('dotenv').config();
+
+const db = require('./db');
 
 const app = express();
 const port = process.env.HTTP_PORT;
