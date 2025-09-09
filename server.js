@@ -94,6 +94,46 @@ app.delete('/products/:id', async (req, res) => {
 });
 
 
+// POST /types: Crear un nuevo tipo de producto
+
+app.post('/types', async (req, res) => {
+  const { name } = req.body;
+  try { 
+    const { rows } = await db.query(
+      'INSERT INTO types (name) VALUES ($1) RETURNING *',
+      [name]
+    );
+    res.status(201).json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// GET /types: Obtener todos los tipos de producto
+app.get('/types', async (req, res) => {
+	try {
+		const { rows } = await db.query('SELECT * FROM types');
+		res.json(rows);
+	} catch (err) {
+		res.status(500).json({ error: err.message });
+	}
+});
+
+// GET /types/:id: Obtener un solo tipo de producto por ID
+app.get('/types/:id', async (req, res) => {
+  const { id } = req.params;
+  try {
+    const { rows } = await db.query('SELECT * FROM types WHERE id = $1', [id]);
+    if (rows.length === 0) {
+      return res.status(404).json({ message: 'Tipo no encontrado' });
+    }
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
 
 // Iniciar el servidor
 app.listen(port, () => {

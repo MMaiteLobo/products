@@ -1,5 +1,6 @@
 \c db_products
 
+-- Tabla de Productos
 CREATE TABLE IF NOT EXISTS products ( 
 	id SERIAL PRIMARY KEY, 
 	name VARCHAR(255) NOT NULL, 
@@ -14,3 +15,10 @@ CREATE TABLE IF NOT EXISTS products (
 -- Opcional: Inserta un producto de ejemplo para probar
 INSERT INTO products (name, description, price, type) VALUES
 ('Producto de Prueba', 'Descripción de un producto de prueba.', 99.99, 'Test');
+
+-- Tabla de Tipos de Productos
+CREATE TABLE IF NOT EXISTS types (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL UNIQUE,
+	created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
