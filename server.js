@@ -15,11 +15,16 @@ app.use(express.json());
 
 // POST /products: Crear un nuevo producto
 app.post('/products', async (req, res) => {
-    const { name, description, price, type } = req.body;
+    const { name, description, price, typeid } = req.body;
     try {
+      // Verifican si el typeId existe en la tabla types
+      const idExist = await db.query('SELECT id FROM types WHERE id = $1', [typeid]);
+      if (!idExist.rows.length) {
+        return res.status(404).json({ message: 'El typeID no existe' });
+      }
       const { rows } = await db.query(
-        'INSERT INTO products (name, description, price, type) VALUES ($1, $2, $3, $4) RETURNING *',
-        [name, description, price, type]
+        'INSERT INTO products (name, description, price, typeid) VALUES ($1, $2, $3, $4) RETURNING *',
+        [name, description, price, typeid]
       );
       res.status(201).json(rows[0]);
     } catch (err) {
@@ -31,19 +36,28 @@ app.post('/products', async (req, res) => {
 
 app.get('/products', async (req, res) => {
   try {
-  const { rows } = await db.query('SELECT * FROM products');
-  res.json(rows);
+    const { rows } = await db.query('SELECT * FROM products');
+    res.json(rows);
   } catch (err) {
-  res.status(500).json({ error: err.message });
+    res.status(500).json({ error: err.message });
   }
-  });
+});
 
 // GET /products/:id: Obtener un producto por su ID
 
 app.get('/products/:id', async (req, res) => {
   const { id } = req.params;
   try {
-    const { rows } = await db.query('SELECT * FROM products WHERE id = $1', [id]);
+    const { rows } = await db.query(
+      `SELECT
+      p.*,
+      json_build_object('id', t.id, 'name', t.name, 'created_at', t.created_at) AS type
+      FROM products AS p
+      LEFT JOIN types AS t ON p.typeid = t.id
+      WHERE p.id = $1`, 
+      [id]
+    );
+
     if (!rows.length) {
       return res.status(404).json({ message: 'Producto no encontrado' });
     }
@@ -110,6 +124,7 @@ app.post('/types', async (req, res) => {
 });
 
 // GET /types: Obtener todos los tipos de producto
+
 app.get('/types', async (req, res) => {
 	try {
 		const { rows } = await db.query('SELECT * FROM types');
