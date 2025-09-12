@@ -31,6 +31,9 @@ const getProducts = async (req, res) => {
     }
 };
 
+
+
+
 const getProductById = async (req, res) => {
     const {id} = req.params;
     try {
@@ -39,9 +42,9 @@ const getProductById = async (req, res) => {
         if (!product) {
             return res.status(404).json({ message: 'Producto no encontrado' });
         }
-        res.status(200).json(product);
+        return res.status(200).json(product);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 };
 
@@ -72,10 +75,25 @@ const deleteProduct = async (req, res) => {
     }
 };
 
+const getProductByIdShort = async (req, res) => {
+    const {id} = req.params;
+    try {
+        const product = await productService.getProductByIdShort(id);
+        if (!product) {
+            return res.status(404).json({ message: 'Producto no encontrado' });
+        }
+        return res.status(200).json(product);
+    } catch (err) {
+        return res.status(500).json({ error: err.message });
+    }
+};
+
+
 module.exports = {
     createProduct,
     getProducts,
     getProductById, 
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductByIdShort
 };

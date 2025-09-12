@@ -17,14 +17,25 @@ const getProducts = async () => {
     return rows;
 };
 
-
-const getProductById = async (id) => {
-    const {rows} = await db.query(
-        'SELECT * FROM products WHERE id = $1',
-        [id]
-    );
+const findProductById = async (id, data) => {
+    const query = `SELECT ${data} FROM products WHERE id = $1`;
+    const {rows} = await db.query(query, [id]);
     return rows[0];
 };
+
+const getProductById = async (id) => {
+    const product = await findProductById(id, '*');
+    return product;
+};
+
+
+//const getProductById = async (id) => {
+//    const {rows} = await db.query(
+//        'SELECT * FROM products WHERE id = $1',
+//        [id]
+//    );
+//    return rows[0];
+//};
 
 const updateProduct = async (id, productData) => {
     const {name, description, price, typeid} = productData;
@@ -43,11 +54,18 @@ const deleteProduct = async (id) => {
     return rows[0]; 
 };
 
+const getProductByIdShort = async (id) => {
+    const product = await findProductById(id, 'name, price');
+    return product;
+};
+
 
 module.exports = {
     createProduct,
     getProducts,
+    findProductById,
     getProductById,
     updateProduct,
-    deleteProduct
+    deleteProduct,
+    getProductByIdShort
 };
