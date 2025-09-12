@@ -1,9 +1,8 @@
 // server.js
 const express = require('express');
+const router = require('./src/routers/router');
 
 require('dotenv').config();
-
-const db = require('./db');
 
 const app = express();
 const port = process.env.HTTP_PORT;
@@ -12,142 +11,7 @@ const port = process.env.HTTP_PORT;
 app.use(express.json());
 
 // --- Rutas ---
-
-// POST /products: Crear un nuevo producto
-app.post('/products', async (req, res) => {
-    const { name, description, price, typeid } = req.body;
-    try {
-      // Verifican si el typeId existe en la tabla types
-      const idExist = await db.query('SELECT id FROM types WHERE id = $1', [typeid]);
-      if (!idExist.rows.length) {
-        return res.status(404).json({ message: 'El typeID no existe' });
-      }
-      const { rows } = await db.query(
-        'INSERT INTO products (name, description, price, typeid) VALUES ($1, $2, $3, $4) RETURNING *',
-        [name, description, price, typeid]
-      );
-      res.status(201).json(rows[0]);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
-    }
-  });
-
-// GET /products: Obtener todos los productos
-
-app.get('/products', async (req, res) => {
-  try {
-    const { rows } = await db.query('SELECT * FROM products');
-    res.json(rows);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /products/:id: Obtener un producto por su ID
-
-app.get('/products/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { rows } = await db.query(
-      `SELECT
-      p.*,
-      json_build_object('id', t.id, 'name', t.name, 'created_at', t.created_at) AS type
-      FROM products AS p
-      LEFT JOIN types AS t ON p.typeid = t.id
-      WHERE p.id = $1`, 
-      [id]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// PUT /products/:id: Actualizar un producto por su ID
-
-app.put('/products/:id', async (req, res) => {
-  const { id } = req.params;
-  const { name, description, price, type, active } = req.body;
-  
-  try {
-    const { rows } = await db.query(
-      'UPDATE products SET name = $1, description = $2, price = $3, type = $4, active = $5, updated_at = NOW() WHERE id = $6 RETURNING *',
-      [name, description, price, type, active, id]
-    );
-
-    if (!rows.length) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// DELETE /products/:id: Eliminar un producto por su ID
-
-app.delete('/products/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    const { rows } = await db.query('DELETE FROM products WHERE id = $1 RETURNING *', [id]);
-    
-    if (!rows.length) {
-      return res.status(404).json({ message: 'Producto no encontrado' });
-    }
-    
-    res.sendStatus(204);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
-// POST /types: Crear un nuevo tipo de producto
-
-app.post('/types', async (req, res) => {
-  const { name } = req.body;
-  try { 
-    const { rows } = await db.query(
-      'INSERT INTO types (name) VALUES ($1) RETURNING *',
-      [name]
-    );
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// GET /types: Obtener todos los tipos de producto
-
-app.get('/types', async (req, res) => {
-	try {
-		const { rows } = await db.query('SELECT * FROM types');
-		res.json(rows);
-	} catch (err) {
-		res.status(500).json({ error: err.message });
-	}
-});
-
-// GET /types/:id: Obtener un solo tipo de producto por ID
-app.get('/types/:id', async (req, res) => {
-  const { id } = req.params;
-  try {
-    const { rows } = await db.query('SELECT * FROM types WHERE id = $1', [id]);
-    if (rows.length === 0) {
-      return res.status(404).json({ message: 'Tipo no encontrado' });
-    }
-    res.json(rows[0]);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
+app.use('/api/v1', router);
 
 
 // Iniciar el servidor
