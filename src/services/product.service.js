@@ -1,8 +1,8 @@
-const db = require('../../db');
+const { getClient } = require('../../db');
 
 const createProduct = async (productData) => {
     const {name, description, price, typeid} = productData;
-    const {rows} = await db.query(
+    const {rows} = await getClient().query(
         'INSERT INTO products (name, description, price, typeid) VALUES ($1, $2, $3, $4) RETURNING *',
         [name, description, price, typeid]
     );
@@ -11,7 +11,7 @@ const createProduct = async (productData) => {
 
 
 const getProducts = async () => {
-    const {rows} = await db.query(
+    const {rows} = await getClient().query(
         'SELECT * FROM products'
     );
     return rows;
@@ -19,7 +19,7 @@ const getProducts = async () => {
 
 const findProductById = async (id, data) => {
     const query = `SELECT ${data} FROM products WHERE id = $1`;
-    const {rows} = await db.query(query, [id]);
+    const {rows} = await getClient().query(query, [id]);
     return rows[0];
 };
 
@@ -39,7 +39,7 @@ const getProductById = async (id) => {
 
 const updateProduct = async (id, productData) => {
     const {name, description, price, typeid} = productData;
-    const {rows} = await db.query(
+    const {rows} = await getClient().query(
         'UPDATE products SET name = $1, description = $2, price = $3, typeid = $4 WHERE id = $5 RETURNING *',
         [name, description, price, typeid, id]
     );
@@ -47,7 +47,7 @@ const updateProduct = async (id, productData) => {
 };
 
 const deleteProduct = async (id) => {
-    const {rows} = await db.query(
+    const {rows} = await getClient().query(
         'DELETE FROM products WHERE id = $1 RETURNING *',
         [id]
     );
