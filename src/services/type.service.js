@@ -1,4 +1,4 @@
-const { getClient } = require('../../db');
+const { getClient } = require('../../db/db');
 
 const createType = async (typeData) => {
     const {name} = typeData;

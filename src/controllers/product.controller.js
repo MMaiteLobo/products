@@ -18,7 +18,7 @@ const createProduct = async (req, res) => {
         res.status(201).json(newProduct);
     } catch (err) {
         // Retorno del error
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 }; 
 
@@ -27,7 +27,7 @@ const getProducts = async (req, res) => {
         const products = await productService.getProducts();
         res.status(200).json(products);
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        return res.status(500).json({ error: err.message });
     }
 };
 
@@ -76,6 +76,7 @@ const deleteProduct = async (req, res) => {
 };
 
 const getProductByIdShort = async (req, res) => {
+    console.log('Obteniendo producto por id corto');
     const {id} = req.params;
     try {
         const product = await productService.getProductByIdShort(id);
