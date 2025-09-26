@@ -2,7 +2,7 @@ const { getClient } = require('../../db/db');
 const redisClient = require('../../db/redisClient');
 
 const getCacheKey = (id, data) => `${id}:${data}`;
-const CACHE_EXPIRATION_SECONDS = 3600;
+const cacheExpirationSeconds = process.env.CACHE_EXPIRATION_SECONDS;
 
 
 const createProduct = async (productData) => {
@@ -25,23 +25,9 @@ const getProducts = async () => {
 };
 
 const findProductById = async (id, data) => {
-    console.log('Buscando producto por id');
-    const cacheKey = getCacheKey(id, data);
-
-    const cachedData = await redisClient.get(cacheKey);
-    if (cachedData) {
-        console.log('Datos obtenidos de la caché');
-        return JSON.parse(cachedData);
-    }
-
-    console.log('Datos obtenidos de la base de datos');
     const query = `SELECT ${data} FROM products WHERE id = $1`;
     const {rows} = await getClient().query(query, [id]);
     const product = rows[0];
-
-    if (product) {
-        await redisClient.setEx(cacheKey, CACHE_EXPIRATION_SECONDS, JSON.stringify(product));
-    }
     return product;
 };
 
@@ -78,13 +64,27 @@ const deleteProduct = async (id) => {
 };
 
 const getProductByIdShort = async (id) => {
-    return findProductById(id, 'name, price');
+    const data = 'name, price';
+    const cacheKey = id;
+    const cachedData = await redisClient.get(cacheKey);
+    if (cachedData) {
+        console.log('Datos obtenidos de la caché');
+        return JSON.parse(cachedData);
+    }
+
+    console.log('Datos obtenidos de la base de datos');
+    const product = await findProductById(id, data);
+    
+    if (product) {
+        await redisClient.setEx(cacheKey, cacheExpirationSeconds, JSON.stringify(product));
+    }
+    
+    return product;
 };
 
 const invalidateCache = async (id) => {
     console.log('Invalidando caché');
-    await redisClient.del(getCacheKey(id, '*'));
-    await redisClient.del(getCacheKey(id, 'name, price'));
+    await redisClient.del(id); 
     console.log('Caché invalidada');
 };
 

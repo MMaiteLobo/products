@@ -36,6 +36,12 @@ const getProducts = async (req, res) => {
 
 const getProductById = async (req, res) => {
     const {id} = req.params;
+    
+    // Validación: verificar que el id no sea undefined ni vacío
+    if (id === undefined || id === '') {
+        return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
+    }
+    
     try {
         const product = await productService.getProductById(id);
 
@@ -51,6 +57,12 @@ const getProductById = async (req, res) => {
 const updateProduct = async (req, res) => {
     const {id} = req.params;
     const {name, description, price, typeid} = req.body;
+    
+    // Validación: verificar que el id no sea undefined ni vacío
+    if (id === undefined || id === '') {
+        return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
+    }
+    
     try {
         const product = await productService.updateProduct(id, {name, description, price, typeid});
         if (!product) {
@@ -64,6 +76,12 @@ const updateProduct = async (req, res) => {
 
 const deleteProduct = async (req, res) => {
     const {id} = req.params;
+    
+    // Validación: verificar que el id no sea undefined ni vacío
+    if (id === undefined || id === '') {
+        return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
+    }
+    
     try {
         const product = await productService.deleteProduct(id);
         if (!product) {
@@ -76,8 +94,13 @@ const deleteProduct = async (req, res) => {
 };
 
 const getProductByIdShort = async (req, res) => {
-    console.log('Obteniendo producto por id corto');
     const {id} = req.params;
+    
+    // Validación: verificar que el id no sea undefined ni vacío
+    if (id === undefined || id === '') {
+        return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
+    }
+    
     try {
         const product = await productService.getProductByIdShort(id);
         if (!product) {
