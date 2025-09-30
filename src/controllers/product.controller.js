@@ -59,7 +59,7 @@ const updateProduct = async (req, res) => {
     const {name, description, price, typeid} = req.body;
     
     // Validación: verificar que el id no sea undefined ni vacío
-    if (id === undefined || id === '') {
+    if (!id) {
         return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
     }
     
