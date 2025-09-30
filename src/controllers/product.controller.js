@@ -38,7 +38,7 @@ const getProductById = async (req, res) => {
     const {id} = req.params;
     
     // Validación: verificar que el id no sea undefined ni vacío
-    if (id === undefined || id === '') {
+    if (!id) {
         return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
     }
     
@@ -78,7 +78,7 @@ const deleteProduct = async (req, res) => {
     const {id} = req.params;
     
     // Validación: verificar que el id no sea undefined ni vacío
-    if (id === undefined || id === '') {
+    if (!id) {
         return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
     }
     
@@ -97,7 +97,7 @@ const getProductByIdShort = async (req, res) => {
     const {id} = req.params;
     
     // Validación: verificar que el id no sea undefined ni vacío
-    if (id === undefined || id === '') {
+    if (!id) {
         return res.status(400).json({ message: 'El ID del producto es requerido y no puede estar vacío' });
     }
     
