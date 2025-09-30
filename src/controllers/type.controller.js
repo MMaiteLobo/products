@@ -4,7 +4,7 @@ const createType = async (req, res) => {
 
     const {name} = req.body;
     // Validación: verificar que el nombre no sea undefined ni vacío
-    if (name === undefined || name === '') {
+    if (!name) {
         return res.status(400).json({ message: 'El nombre del tipo es requerido y no puede estar vacío' });
     }
 
